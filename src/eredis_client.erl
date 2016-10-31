@@ -84,7 +84,10 @@ init([Host, Port, Database, Password, ReconnectSleep, ConnectTimeout]) ->
         {ok, NewState} ->
             {ok, NewState};
         {error, Reason} ->
-            {stop, {connection_error, Reason}}
+            error_logger:error_msg("redis connect error: host=~p,reason=~p",
+                                   [Host, Reason]),
+            self() ! {tcp_closed, undefined},
+            {ok, State}
     end.
 
 handle_call({request, Req}, From, State) ->
